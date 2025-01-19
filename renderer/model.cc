@@ -15,14 +15,6 @@ void Model::orient(Quat orientation)
 
 Mat4x4 Model::get_transform() { return this->transform->get(); }
 
-void Model::init()
-{
-  for (auto &mesh : meshes)
-  {
-    mesh.init();
-  }
-}
-
 void Model::render()
 {
   for (auto &mesh : meshes)

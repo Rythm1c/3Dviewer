@@ -72,7 +72,7 @@ GLTFFile::GLTFFile(std::string path)
         tmpmesh.indices.push_back(_indices[i]);
       }
       tmpmesh.init();
-      meshes.push_back(tmpmesh);
+      this->meshes.push_back(tmpmesh);
     }
   }
 }

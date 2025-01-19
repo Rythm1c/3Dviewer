@@ -1,7 +1,9 @@
-#include <iostream>
+#include "app/app.h"
 
 int main()
 {
-  std::cout << "testing..." << std::endl;
+  App app;
+  app.run();
+
   return 0;
 }

@@ -18,6 +18,7 @@ env.Program(
     ],
     source=[
         "main.cc",
+        Glob("app/*.cc"),
         Glob("math/*.cc"),
         Glob("renderer/*.cc"),
         Glob("viewer/*.cc"),

@@ -22,7 +22,6 @@ public:
   void scale(Vector3f);
   void translate(Vector3f);
 
-  void init();
   void render();
   void clean();
 
