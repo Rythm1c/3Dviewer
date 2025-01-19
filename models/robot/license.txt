@@ -1,0 +1,11 @@
+Model Information:
+* title:	Robot Walk Cycle
+* source:	https://sketchfab.com/3d-models/robot-walk-cycle-e98dbf758ea44320a9c482493f0d275d
+* author:	Devin Eggleston (https://sketchfab.com/deggleston)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Robot Walk Cycle" (https://sketchfab.com/3d-models/robot-walk-cycle-e98dbf758ea44320a9c482493f0d275d) by Devin Eggleston (https://sketchfab.com/deggleston) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
