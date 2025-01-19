@@ -3,8 +3,8 @@
 #include "../foreign/gltf.h"
 #include "../foreign/obj.h"
 #include "../animation/animation.h"
-/*
-#include <dirent.h> */
+
+#include <filesystem>
 
 Viewer::Viewer()
     : camera(new Camera()),
