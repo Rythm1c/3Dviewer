@@ -32,8 +32,10 @@ public:
 
   Mat4x4 get_transform();
 
-  std::vector<struct Mesh> meshes;
+  std::vector<Mesh> meshes;
   std::vector<Texture> textures;
+  std::vector<Clip> clips;
+  
   Color3f color;
 
 private:

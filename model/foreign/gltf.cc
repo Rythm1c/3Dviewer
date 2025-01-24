@@ -4,9 +4,9 @@
 
 #include "gltf.h"
 #include "../renderer/mesh.h"
+#include "../animation/clip.h"
+#include "../animation/skeleton.h"
 #include "../model.h"
-
-
 
 GLTFFile::GLTFFile(std::string path)
 {
@@ -75,6 +75,7 @@ std::vector<Mesh> GLTFFile::getMeshes()
       {
         vertex.pos = {positions[i * 3 + 0], positions[i * 3 + 1],
                       positions[i * 3 + 2]};
+
         vertex.norm = {normals[i * 3 + 0], normals[i * 3 + 1],
                        normals[i * 3 + 2]};
 
@@ -94,16 +95,41 @@ std::vector<Mesh> GLTFFile::getMeshes()
 std::vector<Texture> GLTFFile::getTextures()
 {
   std::vector<Texture> textures;
+  textures.resize(this->tinyModel.textures.size());
+
   for (int i = 0; i < this->tinyModel.textures.size(); i++)
   {
-    tinygltf::Texture &tex = this->tinyModel.textures[i];
-    tinygltf::Image &image = this->tinyModel.images[tex.source];
+    const tinygltf::Texture &tex = this->tinyModel.textures[i];
+    const tinygltf::Image &image = this->tinyModel.images[tex.source];
 
-    textures.push_back(
-        Texture(int(image.width),
-                int(image.height),
-                (void *)image.image.data()));
+    textures[tex.source] = Texture(int(image.width), int(image.height), (void *)image.image.data());
   }
 
   return textures;
+}
+
+Clip getClip(const tinygltf::Model &tinyModel, const tinygltf::Animation &animation)
+{
+  Clip clip;
+  for (int i = 0; i < animation.channels.size(); i++)
+  {
+    const tinygltf::AnimationChannel &channel = animation.channels[i];
+    for (int j = 0; j < animation.samplers.size(); j++)
+    {
+
+      const tinygltf::AnimationSampler &sampler = animation.samplers[j];
+      sampler.input;
+    }
+  }
+  return clip;
+}
+
+std::vector<Clip> GLTFFile::getClips()
+{
+  std::vector<Clip> clips;
+  for (int i = 0; i < this->tinyModel.animations.size(); i++)
+  {
+    const tinygltf::Animation &animation = this->tinyModel.animations[i];
+    clips.push_back(getClip(this->tinyModel, animation));
+  }
 }
