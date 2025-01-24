@@ -4,6 +4,7 @@
 #include "../math/mat4.h"
 #include "../math/quaternion.h"
 #include "../math/vec3.h"
+#include "renderer/texture.h"
 #include <vector>
 
 enum ModelType
@@ -28,6 +29,7 @@ public:
   Mat4x4 get_transform();
 
   std::vector<struct Mesh> meshes;
+  std::vector<Texture> textures;
   Color3f color;
 
 private:

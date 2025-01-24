@@ -1,5 +1,5 @@
 #include "model.h"
-#include "mesh.h"
+#include "renderer/mesh.h"
 #include "../math/transform.h"
 
 Model::Model() : color(Color3f(1.0)), transform(new Transform()) {}

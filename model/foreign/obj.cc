@@ -1,7 +1,7 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
-#include "../renderer/mesh.h"
+/* #include "../renderer/mesh.h"
 #include "obj.h"
 
 OBJFile::OBJFile(std::string path)
@@ -39,3 +39,4 @@ OBJFile::OBJFile(std::string path)
   tmpmesh.init();
   meshes.push_back(tmpmesh);
 }
+ */

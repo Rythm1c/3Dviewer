@@ -1,6 +1,18 @@
 #include "texture.h"
 #include "stb_image.h"
 
+Texture::Texture(const char *path, bool mipmaps, uint format, uint type)
+{
+  this->load_from_file(path, mipmaps, format, type);
+}
+
+Texture::Texture(int w, int h, void *data, bool mipmaps, uint format, uint type, int filter = GL_LINEAR)
+{
+  this->width = w;
+  this->height = h;
+  this->create(mipmaps, format, type, filter, GL_TEXTURE_2D, data);
+}
+
 void Texture::load_from_file(
     const char *path, bool mipmaps, uint format,
     uint type)
@@ -28,7 +40,7 @@ void Texture::load_empty_texture(
   this->width = w;
   this->height = h;
 
- this->create(mipmaps, format, type, filter, GL_TEXTURE_2D, nullptr);
+  this->create(mipmaps, format, type, filter, GL_TEXTURE_2D, nullptr);
 }
 
 void Texture::create_char_bitmap(int w, int h, void *data)
