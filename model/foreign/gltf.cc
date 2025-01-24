@@ -1,28 +1,31 @@
-#include "gltf.h"
-#include "../model/renderer/mesh.h"
-#include "../model/model.h"
-
 #define TINYGLTF_IMPLEMENTATION
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 
-#include "tiny_gltf.h"
+#include "gltf.h"
+#include "../renderer/mesh.h"
+#include "../model.h"
 
-GLTFFile::GLTFFile(std::string path, Model &model)
+
+
+GLTFFile::GLTFFile(std::string path)
 {
-
-  tinygltf::Model tinyModel;
   tinygltf::TinyGLTF loader;
   std::string err, warn;
 
-  if (!loader.LoadASCIIFromFile(&tinyModel, &err, &warn, path))
+  if (!loader.LoadASCIIFromFile(&this->tinyModel, &err, &warn, path))
+  {
     throw std::runtime_error(warn + err);
-
-  model.meshes = this->getMeshes(tinyModel);
-  model.textures = this->getTextures(tinyModel);
+  }
 }
 
-std::vector<Mesh> GLTFFile::getMeshes(tinygltf::Model &tinyModel)
+void GLTFFile::populateModel(Model &model)
+{
+  model.meshes = this->getMeshes();
+  model.textures = this->getTextures();
+}
+
+std::vector<Mesh> GLTFFile::getMeshes()
 {
   std::vector<Mesh> meshes;
 
@@ -30,9 +33,9 @@ std::vector<Mesh> GLTFFile::getMeshes(tinygltf::Model &tinyModel)
   Mesh tmpmesh = {};
   tmpmesh.mode = TRIANGLES;
 
-  for (size_t m = 0; m < tinyModel.meshes.size(); ++m)
+  for (size_t m = 0; m < this->tinyModel.meshes.size(); ++m)
   {
-    tinygltf::Mesh &mesh = tinyModel.meshes[m];
+    tinygltf::Mesh &mesh = this->tinyModel.meshes[m];
 
     for (size_t j = 0; j < mesh.primitives.size(); ++j)
     {
@@ -42,29 +45,29 @@ std::vector<Mesh> GLTFFile::getMeshes(tinygltf::Model &tinyModel)
       tinygltf::Primitive &primitive = mesh.primitives[j];
       // positions
       const tinygltf::Accessor &posAccessor =
-          tinyModel.accessors[primitive.attributes["POSITION"]];
+          this->tinyModel.accessors[primitive.attributes["POSITION"]];
       const tinygltf::BufferView &posBufferview =
-          tinyModel.bufferViews[posAccessor.bufferView];
-      const tinygltf::Buffer &posBuffer = tinyModel.buffers[posBufferview.buffer];
+          this->tinyModel.bufferViews[posAccessor.bufferView];
+      const tinygltf::Buffer &posBuffer = this->tinyModel.buffers[posBufferview.buffer];
       const float *positions = reinterpret_cast<const float *>(
           &posBuffer.data[posBufferview.byteOffset + posAccessor.byteOffset]);
 
       // normals
       const tinygltf::Accessor &normAccessor =
-          tinyModel.accessors[primitive.attributes["NORMAL"]];
+          this->tinyModel.accessors[primitive.attributes["NORMAL"]];
       const tinygltf::BufferView &normBufferview =
-          tinyModel.bufferViews[normAccessor.bufferView];
-      const tinygltf::Buffer &normBuffer = tinyModel.buffers[normBufferview.buffer];
+          this->tinyModel.bufferViews[normAccessor.bufferView];
+      const tinygltf::Buffer &normBuffer = this->tinyModel.buffers[normBufferview.buffer];
       const float *normals = reinterpret_cast<const float *>(
           &normBuffer
                .data[normBufferview.byteOffset + normAccessor.byteOffset]);
 
       // indices
       const tinygltf::Accessor &indAccessor =
-          tinyModel.accessors[primitive.indices];
+          this->tinyModel.accessors[primitive.indices];
       const tinygltf::BufferView &indBufferview =
-          tinyModel.bufferViews[indAccessor.bufferView];
-      const tinygltf::Buffer &indBuffer = tinyModel.buffers[indBufferview.buffer];
+          this->tinyModel.bufferViews[indAccessor.bufferView];
+      const tinygltf::Buffer &indBuffer = this->tinyModel.buffers[indBufferview.buffer];
       const uint *_indices = reinterpret_cast<const uint *>(
           &indBuffer.data[indBufferview.byteOffset + indAccessor.byteOffset]);
 
@@ -85,15 +88,17 @@ std::vector<Mesh> GLTFFile::getMeshes(tinygltf::Model &tinyModel)
       meshes.push_back(tmpmesh);
     }
   }
+  return meshes;
 }
 
-std::vector<Texture> GLTFFile::getTextures(tinygltf::Model &tinyModel)
+std::vector<Texture> GLTFFile::getTextures()
 {
   std::vector<Texture> textures;
-  for (int i = 0; i < tinyModel.textures.size(); i++)
+  for (int i = 0; i < this->tinyModel.textures.size(); i++)
   {
-    tinygltf::Texture &tex = tinyModel.textures[i];
-    tinygltf::Image &image = tinyModel.images[tex.source];
+    tinygltf::Texture &tex = this->tinyModel.textures[i];
+    tinygltf::Image &image = this->tinyModel.images[tex.source];
+
     textures.push_back(
         Texture(int(image.width),
                 int(image.height),

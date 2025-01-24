@@ -1,5 +1,5 @@
 #include "transformTrack.h"
-#include "../math/transform.h"
+#include "../../math/transform.h"
 
 TransformTrack::TransformTrack()
     : position(VectorTrack()), rotation(QuatTrack()), scaling(VectorTrack()),

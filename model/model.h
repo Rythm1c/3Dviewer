@@ -4,7 +4,11 @@
 #include "../math/mat4.h"
 #include "../math/quaternion.h"
 #include "../math/vec3.h"
-#include "renderer/texture.h"
+
+#include "renderer/renderer.h"
+#include "animation/animation.h"
+#include "foreign/gltf.h"
+
 #include <vector>
 
 enum ModelType

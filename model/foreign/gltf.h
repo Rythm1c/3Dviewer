@@ -3,18 +3,24 @@
 
 #include <iostream>
 #include <vector>
-#include "../renderer/texture.h"
+#include "tiny_gltf.h"
 
 struct Mesh;
+class Texture;
 
 class GLTFFile
 {
 public:
-  GLTFFile(std::string path, Model &model);
+  GLTFFile(std::string path);
   ~GLTFFile() {}
 
-  std::vector<Mesh> getMeshes(tinygltf::Model &tinyModel);
-  std::vector<Texture> getTextures(tinygltf::Model &tinyModel);
+  std::vector<Mesh> getMeshes();
+  std::vector<Texture> getTextures();
+
+  void populateModel(class Model &model);
+
+private:
+  tinygltf::Model tinyModel;
 };
 
 #endif

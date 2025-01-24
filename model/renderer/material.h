@@ -1,7 +1,7 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
-#include "../math/vec3.h"
+#include "../../math/vec3.h"
 
 class Texture;
 

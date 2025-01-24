@@ -6,7 +6,7 @@ Texture::Texture(const char *path, bool mipmaps, uint format, uint type)
   this->load_from_file(path, mipmaps, format, type);
 }
 
-Texture::Texture(int w, int h, void *data, bool mipmaps, uint format, uint type, int filter = GL_LINEAR)
+Texture::Texture(int w, int h, void *data, bool mipmaps, uint format, uint type, int filter)
 {
   this->width = w;
   this->height = h;

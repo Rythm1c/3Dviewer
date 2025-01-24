@@ -2,8 +2,8 @@
 #define POSE_H
 
 #include <vector>
+#include "../../math/transform.h"
 
-class Transform;
 class Pose
 {
 public:

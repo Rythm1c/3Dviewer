@@ -22,7 +22,7 @@ env.Program(
         Glob("math/*.cc"),
         Glob("viewer/*.cc"),
         # Glob("imgui/*.cpp"),
-        Glob("model/.cc"),
+        Glob("model/model.cc"),
         Glob("model/renderer/*.cc"),
         Glob("model/animation/*.cc"),
         Glob("model/foreign/*.cc"),

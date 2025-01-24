@@ -1,6 +1,6 @@
 #include "pose.h"
-#include "../math/mat4.h"
-#include "../math/transform.h"
+#include "../../math/mat4.h"
+#include "../../math/transform.h"
 #include <cstring>
 
 Pose::Pose(size_t nJoints) { this->resize(nJoints); }

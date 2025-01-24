@@ -1,8 +1,8 @@
 #ifndef TRACK_H
 #define TRACK_H
 
-#include "../math/quaternion.h"
-#include "../math/vec3.h"
+#include "../../math/quaternion.h"
+#include "../../math/vec3.h"
 #include "frame.h"
 #include <vector>
 

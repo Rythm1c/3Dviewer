@@ -1,8 +1,5 @@
 #include "viewer.h"
-#include "../renderer/renderer.h"
-#include "../foreign/gltf.h"
-#include "../foreign/obj.h"
-#include "../animation/animation.h"
+#include "../model/model.h"
 
 #include <filesystem>
 
@@ -32,10 +29,10 @@ void Viewer::init()
 
 void Viewer::addModel(std::string name, std::string path)
 {
-  // struct dirent *entry = nullptr;
-  GLTFFile file = GLTFFile(path);
+
   Model *model = new Model();
-  model->meshes = file.meshes;
+  GLTFFile file = GLTFFile(path);
+  file.populateModel(*model);
   model->scale(Vector3f(0.5));
   model->orient(Quat(180.0, Vector3f(0.0, 1.0, 0.0)));
   model->translate(Vector3f(0.0, 0.0, 10.0));
