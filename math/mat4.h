@@ -35,7 +35,7 @@ struct Mat4x4
         zx(0.0f), zy(0.0f), zz(0.0f), zw(0.0f),
         wx(0.0f), wy(0.0f), wz(0.0f), ww(0.0f) {}
   // construct matrix using an array
-  Mat4x4(float *fv)
+  Mat4x4(const float *fv)
       : xx(fv[0]), xy(fv[1]), xz(fv[2]), xw(fv[3]),
         yx(fv[4]), yy(fv[5]), yz(fv[6]), yw(fv[7]),
         zx(fv[8]), zy(fv[9]), zz(fv[10]), zw(fv[11]),
@@ -58,7 +58,7 @@ struct Mat4x4
       Vector4f row4)
       : rows{row1, row2, row3, row4} {}
 
-  struct Quat toQuat();
+  struct Quat toQuat() const;
   /// @brief from a row-major matrix to a column-major and vice versa
   /// @return 
   Mat4x4 transpose() const;

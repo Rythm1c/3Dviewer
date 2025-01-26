@@ -5,62 +5,82 @@ template class Track<float, 1>;
 template class Track<Vector3f, 3>;
 template class Track<Quat, 4>;
 
-namespace TrackHelpers {
-inline float interpolate(float a, float b, float c) {
-  return (1.0 - c) * a + c * b;
-}
-inline Vector3f interpolate(const Vector3f &a, const Vector3f &b, float c) {
-  return lerp(a, b, c);
-}
-inline Quat interpolate(Quat &a, Quat &b, float c) {
-  Quat result = mix(a, b, c);
+namespace TrackHelpers
+{
+  inline float interpolate(float a, float b, float c)
+  {
+    return (1.0 - c) * a + c * b;
+  }
+  inline Vector3f interpolate(const Vector3f &a, const Vector3f &b, float c)
+  {
+    return lerp(a, b, c);
+  }
+  inline Quat interpolate(Quat &a, Quat &b, float c)
+  {
+    Quat result = mix(a, b, c);
 
-  if (dot(a, b) < 0.0) {
-    result = mix(a, -1.0 * b, c);
+    if (dot(a, b) < 0.0)
+    {
+      result = mix(a, -1.0 * b, c);
+    }
+
+    return result.unit();
   }
 
-  return result.unit();
-}
+  inline float AdjustHermiteResult(float f) { return f; }
+  inline Vector3f AdjustHermiteResult(const Vector3f &v) { return v; }
+  inline Quat AdjustHermiteResult(Quat &q) { return q.unit(); }
 
-inline float AdjustHermiteResult(float f) { return f; }
-inline Vector3f AdjustHermiteResult(const Vector3f &v) { return v; }
-inline Quat AdjustHermiteResult(Quat &q) { return q.unit(); }
-
-inline void Neighborhood(const float &a, float &b) {}
-inline void Neighborhood(const Vector3f &a, Vector3f &b) {}
-inline void Neighborhood(const Quat &a, Quat &b) {
-  if (dot(a, b) < 0) {
-    b = -1.0 * b;
+  inline void Neighborhood(const float &a, float &b) {}
+  inline void Neighborhood(const Vector3f &a, Vector3f &b) {}
+  inline void Neighborhood(const Quat &a, Quat &b)
+  {
+    if (dot(a, b) < 0)
+    {
+      b = -1.0 * b;
+    }
   }
-}
 }; // namespace TrackHelpers
 
-template <typename T, size_t N> unsigned int Track<T, N>::size() {
+template <typename T, size_t N>
+unsigned int Track<T, N>::size()
+{
   return frames.size();
 }
 
-template <typename T, size_t N> float Track<T, N>::getStartTime() {
+template <typename T, size_t N>
+float Track<T, N>::getStartTime()
+{
   return frames[0].time;
 }
 
-template <typename T, size_t N> float Track<T, N>::getEndTime() {
+template <typename T, size_t N>
+float Track<T, N>::getEndTime()
+{
   return frames[frames.size() - 1].time;
 }
 
 template <typename T, size_t N>
-T Track<T, N>::sample(float time, bool looping) {
-  if (interpolation == Interpolation::Constant) {
+T Track<T, N>::sample(float time, bool looping)
+{
+  if (interpolation == Interpolation::Constant)
+  {
     return sampleConst(time, looping);
-  } else if (interpolation == Interpolation::Linear) {
+  }
+  else if (interpolation == Interpolation::Linear)
+  {
     return sampleLinear(time, looping);
-  } else {
+  }
+  else
+  {
     return sampleCubic(time, looping);
   }
 }
 
 template <typename T, size_t N>
 T Track<T, N>::hermite(float t, const T &p1, const T &s1, const T &_p2,
-                       const T &s2) {
+                       const T &s2)
+{
   float tt = t * t;
 
   float ttt = tt * t;
@@ -75,31 +95,41 @@ T Track<T, N>::hermite(float t, const T &p1, const T &s1, const T &_p2,
 }
 
 template <typename T, size_t N>
-size_t Track<T, N>::frameIndex(float time, bool looping) {
-  if (this->frames.size() < 1) {
+size_t Track<T, N>::frameIndex(float time, bool looping)
+{
+  if (this->frames.size() < 1)
+  {
     return -1;
   }
 
-  if (looping) {
+  if (looping)
+  {
     float startTime = this->getStartTime();
     float endTime = this->getEndTime();
     float difference = endTime - startTime;
     time = fmodf((time - startTime), difference);
-    if (time < 0.0) {
+    if (time < 0.0)
+    {
       time += difference;
     }
     time += startTime;
-  } else {
-    if (time <= this->getStartTime()) {
+  }
+  else
+  {
+    if (time <= this->getStartTime())
+    {
       return 0;
     }
-    if (time >= this->frames[this->frames.size() - 2].time) {
+    if (time >= this->frames[this->frames.size() - 2].time)
+    {
       return this->frames.size() - 2;
     }
   }
 
-  for (size_t i = this->frames.size() - 1; i >= 0; --i) {
-    if (time >= this->frames[i].time) {
+  for (size_t i = this->frames.size() - 1; i >= 0; --i)
+  {
+    if (time >= this->frames[i].time)
+    {
       return i;
     }
   }
@@ -108,11 +138,13 @@ size_t Track<T, N>::frameIndex(float time, bool looping) {
 }
 
 template <typename T, size_t N>
-float Track<T, N>::adjustToFitTrack(float time, bool looping) {
+float Track<T, N>::adjustToFitTrack(float time, bool looping)
+{
 
   size_t size = this->frames.size();
 
-  if (size < 1) {
+  if (size < 1)
+  {
     return 0.0;
   }
 
@@ -120,21 +152,28 @@ float Track<T, N>::adjustToFitTrack(float time, bool looping) {
   float endTime = this->getEndTime();
   float difference = endTime - startTime;
 
-  if (difference <= 0.0) {
+  if (difference <= 0.0)
+  {
     return 0.0;
   }
 
-  if (looping) {
+  if (looping)
+  {
     time = fmodf(time - startTime, difference);
-    if (time < 0.0) {
+    if (time < 0.0)
+    {
       time += difference;
     }
     time += startTime;
-  } else {
-    if (time <= startTime) {
+  }
+  else
+  {
+    if (time <= startTime)
+    {
       time = startTime;
     }
-    if (time >= endTime) {
+    if (time >= endTime)
+    {
       return endTime;
     }
   }
@@ -142,20 +181,27 @@ float Track<T, N>::adjustToFitTrack(float time, bool looping) {
   return time;
 }
 
-template <> float Track<float, 1>::cast(float *value) { return value[0]; }
-template <> Vector3f Track<Vector3f, 3>::cast(float *value) {
+template <>
+float Track<float, 1>::cast(float *value) { return value[0]; }
+template <>
+Vector3f Track<Vector3f, 3>::cast(float *value)
+{
   return Vector3f(value[0], value[1], value[2]);
 }
-template <> Quat Track<Quat, 4>::cast(float *value) {
+template <>
+Quat Track<Quat, 4>::cast(float *value)
+{
   Quat r = Quat(value[0], value[1], value[2], value[3]);
   return r.unit();
 }
 
 template <typename T, size_t N>
-T Track<T, N>::sampleConst(float time, bool looping) {
+T Track<T, N>::sampleConst(float time, bool looping)
+{
   size_t index = this->frameIndex(time, looping);
 
-  if ((int)index < 0 || (int)index >= (int)this->frames.size()) {
+  if ((int)index < 0 || (int)index >= (int)this->frames.size())
+  {
     return T();
   }
 
@@ -163,9 +209,11 @@ T Track<T, N>::sampleConst(float time, bool looping) {
 }
 
 template <typename T, size_t N>
-T Track<T, N>::sampleLinear(float time, bool looping) {
+T Track<T, N>::sampleLinear(float time, bool looping)
+{
   size_t index = this->frameIndex(time, looping);
-  if ((int)index < 0 || (int)index >= (int)this->frames.size() - 1) {
+  if ((int)index < 0 || (int)index >= (int)this->frames.size() - 1)
+  {
     return T();
   }
 
@@ -174,7 +222,8 @@ T Track<T, N>::sampleLinear(float time, bool looping) {
   float thisTime = this->frames[index].time;
   float frameDelta = this->frames[nextFrame].time - thisTime;
 
-  if (frameDelta <= 0.0) {
+  if (frameDelta <= 0.0)
+  {
     return T();
   }
 
@@ -185,9 +234,11 @@ T Track<T, N>::sampleLinear(float time, bool looping) {
   return TrackHelpers::interpolate(start, end, t);
 }
 template <typename T, size_t N>
-T Track<T, N>::sampleCubic(float time, bool looping) {
+T Track<T, N>::sampleCubic(float time, bool looping)
+{
   int thisFrame = this->frameIndex(time, looping);
-  if (thisFrame < 0 || thisFrame >= this->frames.size() - 1) {
+  if (thisFrame < 0 || thisFrame >= this->frames.size() - 1)
+  {
     return T();
   }
 
@@ -195,7 +246,8 @@ T Track<T, N>::sampleCubic(float time, bool looping) {
   float trackTime = this->adjustToFitTrack(time, looping);
   float thisTime = this->frames[thisFrame].time;
   float frameDelta = this->frames[nextFrame].time - thisTime;
-  if (frameDelta <= 0.0f) {
+  if (frameDelta <= 0.0f)
+  {
     return T();
   }
 

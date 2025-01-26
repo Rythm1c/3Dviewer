@@ -93,7 +93,7 @@ Mat4x4 look_at(const Vector3f &pos, const Vector3f &fr, const Vector3f &up)
       0.0, 0.0, 0.0, 1.0);
 }
 
-Quat Mat4x4::toQuat()
+Quat Mat4x4::toQuat() const
 {
 
   float x = 0.0;

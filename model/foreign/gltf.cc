@@ -6,6 +6,7 @@
 #include "../renderer/mesh.h"
 #include "../animation/clip.h"
 #include "../animation/skeleton.h"
+#include "../animation/pose.h"
 #include "../model.h"
 
 GLTFFile::GLTFFile(std::string path)
@@ -132,4 +133,48 @@ std::vector<Clip> GLTFFile::getClips()
     const tinygltf::Animation &animation = this->tinyModel.animations[i];
     clips.push_back(getClip(this->tinyModel, animation));
   }
+}
+
+Pose getRestPose(const tinygltf::Model &tinyModel)
+{
+  Pose result;
+  result.resize(tinyModel.nodes.size());
+
+  for (int i = 0; i < tinyModel.nodes.size(); i++)
+  {
+
+    const tinygltf::Node &node = tinyModel.nodes[i];
+
+    Transform finalTransform;
+    finalTransform = transformFromMat(Mat4x4((const float *)node.matrix.data()).transpose());
+
+    if (node.translation.size() != 0)
+    {
+      finalTransform.translation = Vector3f(
+          node.translation[0],
+          node.translation[1],
+          node.translation[2]);
+    }
+
+    if (node.scale.size() != 0)
+    {
+      finalTransform.scaling = Vector3f(
+          node.scale[0],
+          node.scale[1],
+          node.scale[2]);
+    }
+
+    if (node.rotation.size() != 0)
+    {
+      finalTransform.orientation = Quat(
+          node.rotation[3],
+          node.rotation[0],
+          node.rotation[1],
+          node.rotation[2]);
+    }
+
+    result.setLocalTransform(i, finalTransform);
+  }
+
+  return result;
 }

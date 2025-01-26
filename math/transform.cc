@@ -1,6 +1,6 @@
 #include "transform.h"
 
-Mat4x4 Transform::get()
+Mat4x4 Transform::get() const
 {
   Vector3f x = orientation * Vector3f(1.0, 0.0, 0.0);
   Vector3f y = orientation * Vector3f(0.0, 1.0, 0.0);
@@ -20,7 +20,7 @@ Mat4x4 Transform::get()
   );
 }
 
-Transform Transform::inverse()
+Transform Transform::inverse() const
 {
   Transform inv = Transform();
 
@@ -50,7 +50,7 @@ Transform combine(const Transform &t1, const Transform &t2)
 
   return result;
 }
-Transform transformFromMat(Mat4x4 &mat)
+Transform transformFromMat(const Mat4x4 &mat)
 {
   Transform transform = Transform();
 
