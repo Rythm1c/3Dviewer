@@ -127,6 +127,7 @@ std::vector<Texture> GLTFFile::getTextures()
     const tinygltf::Texture &tex = this->tinyModel.textures[i];
     const tinygltf::Image &image = this->tinyModel.images[tex.source];
 
+    // for debugging purposes
     /* for (int y = 0; y < image.height; y++)
     {
       for (int x = 0; x < image.width; x++)
@@ -269,12 +270,6 @@ void editTrack(
 
   std::cout << "channel target: " << channel.target_node << "\n";
 
-  if (tinyModel.accessors[animSampler.output].type != TINYGLTF_TYPE_VEC3 ||
-      tinyModel.accessors[animSampler.output].type != TINYGLTF_TYPE_VEC4)
-  {
-    return;
-  }
-
   for (int j = 0; j < tinyModel.accessors[animSampler.input].count; j++)
   {
 
@@ -316,6 +311,10 @@ void editTrack(
       track.getScalingTrack().frames.push_back(frame);
     }
   }
+
+  std::cout << "pos track size: " << track.getPosTrack().size() << "\n";
+  std::cout << "pos rotation size: " << track.getRotationTrack().size() << "\n";
+  std::cout << "pos scaling size: " << track.getScalingTrack().size() << "\n";
 }
 
 Clip getClip(const tinygltf::Model &tinyModel, const tinygltf::Animation &animation)
