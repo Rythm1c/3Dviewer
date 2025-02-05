@@ -4,7 +4,8 @@
 #include "track.h"
 
 class Transform;
-class TransformTrack {
+class TransformTrack
+{
 public:
   TransformTrack();
   ~TransformTrack() {}

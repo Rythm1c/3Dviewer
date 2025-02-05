@@ -9,6 +9,8 @@
 #include "../../math/vec2.h"
 #include "../../math/vec3.h"
 
+#include "material.h"
+
 struct Vertex
 {
   Point3f pos;
@@ -32,6 +34,8 @@ struct Mesh
   std::vector<Vertex> vertices;
   std::vector<uint> indices;
   drawMode mode{POINTS};
+  Material material{};
+  
 
   void init();
   void render();

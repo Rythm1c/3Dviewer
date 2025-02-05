@@ -2,19 +2,21 @@
 #define SKELETON_H
 
 #include "../../math/mat4.h"
+#include "pose.h"
 #include <vector>
+#include <string>
 
 class Skeleton
 {
 public:
-
   Skeleton();
   ~Skeleton() {}
 
-  class Pose *restPose;
+  Pose restPose;
   std::vector<Mat4x4> inversePose;
+  std::vector<std::string> jointNames;
 
-  std::vector<Mat4x4> getFinalMat() const;
+  // std::vector<Mat4x4> getFinalMat() const;
 };
 
 #endif

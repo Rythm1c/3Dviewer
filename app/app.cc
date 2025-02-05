@@ -25,7 +25,7 @@ void App::init()
 
   this->viewer = new Viewer();
   this->viewer->init();
-  this->viewer->addModel("astronaut", "models/astronaut/scene.gltf");
+  this->viewer->addModel("astronaut", "./models/astronaut/scene.gltf");
   this->viewer->currModel = "astronaut";
 
   int nkeys;

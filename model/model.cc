@@ -1,6 +1,6 @@
 #include "model.h"
 
-Model::Model() : color(Color3f(1.0)), transform(new Transform()) {}
+Model::Model() : color(Color3f(1.0)), skeleton(Skeleton()), transform(new Transform()) {}
 
 void Model::translate(Vector3f pos) { this->transform->translation = pos; }
 

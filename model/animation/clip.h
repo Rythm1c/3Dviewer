@@ -11,7 +11,7 @@ public:
   ~Clip() {}
 
   uint getIdAtIndex(uint index);
-  void seyIdAtIndex(uint idx, uint id);
+  void setIdAtIndex(uint idx, uint id);
   uint size();
   float sample(class Pose &outPose, float inTime);
   void ReCalculateDuartion();
@@ -23,6 +23,11 @@ public:
   float GetEndTime();
   bool GetLooping();
   void SetLooping(bool inLooping);
+
+  void resize(size_t newSize);
+
+  class TransformTrack &getTrack(size_t index);
+ std::vector<class TransformTrack> &getTracks();
 
 private:
   std::string name;

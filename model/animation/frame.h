@@ -7,7 +7,7 @@ struct Frame
   float m_value[N];
   float m_in[N];
   float m_out[N];
-  float time;
+  float time{0};
 };
 
 enum Interpolation

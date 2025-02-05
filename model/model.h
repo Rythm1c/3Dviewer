@@ -35,8 +35,9 @@ public:
   std::vector<Mesh> meshes;
   std::vector<Texture> textures;
   std::vector<Clip> clips;
-  
+
   Color3f color;
+  Skeleton skeleton;
 
 private:
   class Transform *transform;
