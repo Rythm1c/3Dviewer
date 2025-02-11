@@ -40,7 +40,6 @@ std::vector<Mesh> GLTFFile::getMeshes()
 {
   std::vector<Mesh> meshes;
 
-  Vertex vertex = {};
   Mesh tmpmesh = {};
   tmpmesh.mode = TRIANGLES;
 
@@ -54,22 +53,119 @@ std::vector<Mesh> GLTFFile::getMeshes()
       tmpmesh.indices.clear();
 
       tinygltf::Primitive &primitive = mesh.primitives[j];
-
       // positions
-      const float *positions = getData<float>(
-          this->tinyModel,
-          primitive.attributes["POSITION"]);
-      // normals
-      const float *normals = getData<float>(
-          this->tinyModel,
-          primitive.attributes["NORMAL"]);
-      // indices
-      const uint *_indices = getData<uint>(
-          this->tinyModel,
-          primitive.indices);
+      auto it = primitive.attributes.find("POSITION");
+      if (it != primitive.attributes.end())
+      {
+        const float *positions = getData<float>(this->tinyModel, it->second);
+        int count = tinyModel.accessors[it->second].count;
 
-      size_t vertCount = this->tinyModel.accessors[primitive.attributes["POSITION"]].count;
-      size_t indexCount = this->tinyModel.accessors[primitive.indices].count;
+        for (size_t i = 0; i < count; ++i)
+        {
+          Vertex vertex = {
+              .pos = Vector3f(
+                  positions[i * 3 + 0],
+                  positions[i * 3 + 1],
+                  positions[i * 3 + 2]),
+          };
+          tmpmesh.vertices.push_back(vertex);
+        }
+      }
+      else
+      {
+        std::cout << "no position attribute found in primitive " << j << " of mesh " << m << "\n";
+      }
+
+      // normals
+      it = primitive.attributes.find("NORMAL");
+      if (it != primitive.attributes.end())
+      {
+        const float *normals = getData<float>(this->tinyModel, it->second);
+        int count = tinyModel.accessors[it->second].count;
+
+        for (size_t i = 0; i < count; ++i)
+        {
+
+          tmpmesh.vertices[i].norm = Vector3f(
+              normals[i * 3 + 0],
+              normals[i * 3 + 1],
+              normals[i * 3 + 2]);
+        }
+      }
+      else
+      {
+        std::cout << "no normal attribute found in primitive " << j << " of mesh " << m << "\n";
+      }
+
+      // texture coords
+      it = primitive.attributes.find("TEXCOORD_0");
+      if (it != primitive.attributes.end())
+      {
+        const float *uvs = getData<float>(this->tinyModel, it->second);
+        int count = tinyModel.accessors[it->second].count;
+
+        for (size_t i = 0; i < count; ++i)
+        {
+
+          tmpmesh.vertices[i].tc = Vector2f(
+              uvs[i * 2 + 0],
+              uvs[i * 2 + 1]);
+        }
+      }
+      else
+      {
+        std::cout << "no texture coordinate attribute found in primitive " << j << " of mesh " << m << "\n";
+      }
+
+      it = primitive.attributes.find("JOINTS_0");
+      if (it != primitive.attributes.end())
+      {
+        const float *joints = getData<float>(this->tinyModel, it->second);
+        int count = tinyModel.accessors[it->second].count;
+
+        for (size_t i = 0; i < count; ++i)
+        {
+
+          tmpmesh.vertices[i].joints[0] = joints[i * 4 + 0];
+          tmpmesh.vertices[i].joints[1] = joints[i * 4 + 1];
+          tmpmesh.vertices[i].joints[2] = joints[i * 4 + 2];
+          tmpmesh.vertices[i].joints[3] = joints[i * 4 + 3];
+        };
+      }
+      else
+      {
+        std::cout << "no joints attribute found in primitive " << j << " of mesh " << m << "\n";
+      }
+
+      it = primitive.attributes.find("WEIGHTS_0");
+      if (it != primitive.attributes.end())
+      {
+        const float *weights = getData<float>(this->tinyModel, it->second);
+        int count = tinyModel.accessors[it->second].count;
+
+        for (size_t i = 0; i < count; ++i)
+        {
+
+          tmpmesh.vertices[i].weights[0] = weights[i * 4 + 0];
+          tmpmesh.vertices[i].weights[1] = weights[i * 4 + 1];
+          tmpmesh.vertices[i].weights[2] = weights[i * 4 + 2];
+          tmpmesh.vertices[i].weights[3] = weights[i * 4 + 3];
+        };
+      }
+      else
+      {
+        std::cout << "no weights attributes found in primitive " << j << " of mesh " << m << "\n";
+      }
+
+      if (primitive.indices >= 0)
+      {
+        const uint *indices = getData<uint>(tinyModel, primitive.indices);
+        int count = tinyModel.accessors[primitive.indices].count;
+        for (int i = 0; i < count; ++i)
+        {
+          tmpmesh.indices.push_back(indices[i]);
+        }
+      }
 
       const tinygltf::Material &material = tinyModel.materials[primitive.material];
       const tinygltf::PbrMetallicRoughness &pbr = material.pbrMetallicRoughness;
@@ -87,29 +183,6 @@ std::vector<Mesh> GLTFFile::getMeshes()
           .metallicMap = pbr.metallicRoughnessTexture.index,
       };
 
-      /* std::cout << "base texture index:" << pbr.baseColorTexture.index << "\n";
-      std::cout << "metallic map index:" << pbr.metallicRoughnessTexture.index << "\n"; */
-
-      tmpmesh.material.baseTex = tinyModel.textures[pbr.baseColorTexture.index].source;
-
-      for (size_t i = 0; i < vertCount; ++i)
-      {
-        vertex.pos = {
-            positions[i * 3 + 0],
-            positions[i * 3 + 1],
-            positions[i * 3 + 2]};
-
-        vertex.norm = {
-            normals[i * 3 + 0],
-            normals[i * 3 + 1],
-            normals[i * 3 + 2]};
-
-        tmpmesh.vertices.push_back(vertex);
-      }
-      for (size_t i = 0; i < indexCount; ++i)
-      {
-        tmpmesh.indices.push_back(_indices[i]);
-      }
       tmpmesh.init();
       meshes.push_back(tmpmesh);
     }
@@ -219,28 +292,28 @@ Pose getRestPose(const tinygltf::Model &tinyModel)
 std::vector<Mat4x4> getIverseMatrices(const tinygltf::Model &tinyModel)
 {
   std::vector<Mat4x4> inverseMats;
+  inverseMats.resize(tinyModel.nodes.size(), Mat4x4());
+
   const tinygltf::Skin &skin = tinyModel.skins[0];
 
-  for (int i = 0; i < tinyModel.skins[0].joints.size(); i++)
+  if (skin.inverseBindMatrices < 1)
   {
-    if (skin.inverseBindMatrices < 1)
-    {
-      std::cout << "no inverse bind matrices found\n";
-      break;
-    }
+    std::cout << "no inverse bind matrices found!\n";
+    return inverseMats;
+  }
+  const float *data = getData<float>(tinyModel, skin.inverseBindMatrices);
+  size_t count = tinyModel.accessors[skin.inverseBindMatrices].count;
 
-    const unsigned char *dataPtr = getData<unsigned char>(tinyModel, skin.inverseBindMatrices);
+  std::vector<Mat4x4> tmpMatrixData;
+  tmpMatrixData.resize(count, Mat4x4());
+  for (size_t j = 0; j < count; ++j)
+  {
+    std::memcpy(&tmpMatrixData[j].rc[0][0], data + j * 16 * sizeof(float), 16 * sizeof(float));
+  }
 
-    size_t numMatrices = tinyModel.accessors[skin.inverseBindMatrices].count;
-
-    for (size_t j = 0; j < numMatrices; j++)
-    {
-      Mat4x4 matrixData;
-
-      std::memcpy(&matrixData.rc[0][0], dataPtr + i * 16 * sizeof(float), 16 * sizeof(float));
-
-      inverseMats.push_back(matrixData);
-    }
+  for (int i = 0; i < skin.joints.size(); ++i)
+  {
+    inverseMats[skin.joints[i]] = tmpMatrixData[i].transpose();
   }
   return inverseMats;
 }
@@ -268,9 +341,11 @@ void editTrack(
   const float *timeData = getData<float>(tinyModel, animSampler.input);
   const float *valueData = getData<float>(tinyModel, animSampler.output);
 
-  std::cout << "channel target: " << channel.target_node << "\n";
+  int count = tinyModel.accessors[animSampler.input].count;
 
-  for (int j = 0; j < tinyModel.accessors[animSampler.input].count; j++)
+  // std::cout << "channel target: " << channel.target_node << "\n";
+
+  for (int j = 0; j < count; j++)
   {
 
     if (channel.target_path == "translation")
@@ -311,24 +386,18 @@ void editTrack(
       track.getScalingTrack().frames.push_back(frame);
     }
   }
-
-  std::cout << "pos track size: " << track.getPosTrack().size() << "\n";
-  std::cout << "pos rotation size: " << track.getRotationTrack().size() << "\n";
-  std::cout << "pos scaling size: " << track.getScalingTrack().size() << "\n";
 }
 
 Clip getClip(const tinygltf::Model &tinyModel, const tinygltf::Animation &animation)
 {
   Clip clip;
 
-  std::cout << "number of raw channels: " << animation.channels.size() << std::endl;
-
   for (int i = 0; i < animation.channels.size(); i++)
   {
     const tinygltf::AnimationChannel &channel = animation.channels[i];
     const tinygltf::AnimationSampler &animSampler = animation.samplers[channel.sampler];
 
-    if (channel.target_node < -1)
+    if (channel.target_node < 0)
       continue;
 
     bool exists = false;
@@ -351,7 +420,7 @@ Clip getClip(const tinygltf::Model &tinyModel, const tinygltf::Animation &animat
     }
   }
 
-  std::cout << "number of tracks: " << clip.size() << std::endl;
+  // std::cout << "number of tracks: " << clip.size() << std::endl;
   clip.ReCalculateDuartion();
   return clip;
 }
@@ -371,10 +440,10 @@ std::vector<Clip> GLTFFile::getClips()
 template <typename T>
 const T *getData(const tinygltf::Model &tinyModel, const int index)
 {
+
   const tinygltf::Accessor &dataAccessor = tinyModel.accessors[index];
   const tinygltf::BufferView &dataBufferview = tinyModel.bufferViews[dataAccessor.bufferView];
   const tinygltf::Buffer &dataBuffer = tinyModel.buffers[dataBufferview.buffer];
 
-  return reinterpret_cast<const T *>(
-      &dataBuffer.data[dataBufferview.byteOffset + dataAccessor.byteOffset]);
+  return reinterpret_cast<const T *>(&dataBuffer.data[dataBufferview.byteOffset + dataAccessor.byteOffset]);
 }

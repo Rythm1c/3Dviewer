@@ -36,6 +36,14 @@ void Mesh::init()
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (void *)offsetof(Vertex, tc));
     glEnableVertexAttribArray(2);
+
+    glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (void *)offsetof(Vertex, weights));
+    glEnableVertexAttribArray(3);
+
+    glVertexAttribIPointer(4, 4, GL_INT, sizeof(Vertex),
+                           (void *)offsetof(Vertex, weights));
+    glEnableVertexAttribArray(4);
   }
 
   glBindVertexArray(0);

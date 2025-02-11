@@ -55,9 +55,13 @@ void Pose::setLocalTransform(size_t index, const Transform &transform)
 Transform Pose::getGlobalTranform(size_t index)
 {
   Transform result = this->joints[index];
-  for (unsigned int p = this->parents[index]; p >= 0; p = this->parents[p])
+  int p = this->parents[index];
+
+  while (p >= 0)
   {
     result = combine(this->joints[p], result);
+
+    p = this->parents[p];
   }
 
   return result;

@@ -13,12 +13,14 @@
 
 struct Vertex
 {
-  Point3f pos;
-  Vector3f norm;
-  Vector2f tc;
+  Point3f pos{0.0};
+  Vector3f norm{0.0};
+  Vector2f tc{0.0};
+  float weights[4] = {0.0, 0.0, 0.0, 0.0};
+  int joints[4] = {-1, -1, -1, -1};
 };
 
-enum drawMode
+enum DrawMode
 {
   POINTS,
   LINES,
@@ -33,9 +35,8 @@ struct Mesh
 
   std::vector<Vertex> vertices;
   std::vector<uint> indices;
-  drawMode mode{POINTS};
+  DrawMode mode{POINTS};
   Material material{};
-  
 
   void init();
   void render();

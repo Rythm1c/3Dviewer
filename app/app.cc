@@ -13,9 +13,8 @@ App::App()
       running(true),
       delta(0.0),
       fps(0.0),
-      keyboardState(nullptr)
-{
-}
+      elapsed(0.0),
+      keyboardState(nullptr) {}
 
 void App::init()
 {
@@ -41,7 +40,7 @@ void App::run()
     this->handelInput();
 
     this->window->clear(0.8, 0.2, 0.2);
-    this->viewer->update(this->window->ratio());
+    this->viewer->update(this->window->ratio(), this->elapsed);
     this->viewer->renderCurrModel();
     this->window->swapBuffer();
   }
@@ -54,6 +53,7 @@ void App::calcFps()
                     .count();
   lastFrameDuration = now;
   this->fps = 1.0 / this->delta;
+  this->elapsed += this->delta;
 }
 void App::handelInput()
 {

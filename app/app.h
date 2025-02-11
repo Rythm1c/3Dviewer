@@ -14,6 +14,7 @@ private:
 
   float delta;
   float fps;
+  float elapsed;
 
   const unsigned char *keyboardState;
 

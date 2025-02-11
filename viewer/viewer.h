@@ -18,7 +18,7 @@ public:
 
   void addModel(std::string name, std::string path);
 
-  void update(float ratio);
+  void update(float ratio, float elapsed);
   void renderCurrModel();
 
   Camera *camera;
