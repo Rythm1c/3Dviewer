@@ -78,9 +78,8 @@ void Viewer::renderCurrModel()
     this->phongAnimated->updateMat4("transform", this->models[this->currModel]->get_transform());
 
     std::vector<Mat4x4> mats = this->models[this->currModel]->getPose();
-    for (int i = 0; i < mats.size(); ++i)
+    for (int i = 0; i < mats.size(); i++)
     {
-
       std::string value = "boneMats[" + std::to_string(i) + "]";
       this->phongAnimated->updateMat4(value.c_str(), mats[i]);
     }

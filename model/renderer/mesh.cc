@@ -42,7 +42,7 @@ void Mesh::init()
     glEnableVertexAttribArray(3);
 
     glVertexAttribIPointer(4, 4, GL_INT, sizeof(Vertex),
-                           (void *)offsetof(Vertex, weights));
+                           (void *)offsetof(Vertex, joints));
     glEnableVertexAttribArray(4);
   }
 

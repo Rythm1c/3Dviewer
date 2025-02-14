@@ -1,6 +1,15 @@
 #include "mat4.h"
 #include "quaternion.h"
 
+Mat4x4 identity()
+{
+  return Mat4x4(
+      1.0, 0.0, 0.0, 0.0,
+      0.0, 1.0, 0.0, 0.0,
+      0.0, 0.0, 1.0, 0.0,
+      0.0, 0.0, 0.0, 1.0);
+}
+
 Mat4x4 translate(const Vector3f t)
 {
   Mat4x4 trans;

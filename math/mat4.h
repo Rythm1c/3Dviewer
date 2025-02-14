@@ -10,7 +10,7 @@
       l.rc[aRow][0] * r.rc[0][bCol] + \
       l.rc[aRow][1] * r.rc[1][bCol] + \
       l.rc[aRow][2] * r.rc[2][bCol] + \
-      l.rc[aRow][3] * r.rc[2][bCol]
+      l.rc[aRow][3] * r.rc[3][bCol]
 
 struct Mat4x4
 {
@@ -65,7 +65,7 @@ struct Mat4x4
 };
 
 
-
+Mat4x4 identity();
 /// @brief create a translation matrix out of a vec3
 /// @param t translation vector
 /// @return translation mat

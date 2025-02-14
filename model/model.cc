@@ -23,11 +23,10 @@ void Model::render()
 
 void Model::animate(float elapsed)
 {
-
+  this->pose = this->skeleton.restPose;
   if (this->currAnim > -1 && this->clips.size() > 0)
   {
-    this->pose = this->skeleton.restPose;
-    // this->clips[this->currAnim].sample(this->pose, elapsed);
+    this->clips[this->currAnim].sample(this->pose, elapsed);
   }
 }
 
@@ -38,7 +37,7 @@ std::vector<Mat4x4> Model::getPose()
   if ((this->currAnim > -1) && (this->clips.size() > 0))
   {
     int len = this->pose.size();
-    result.resize(len, Mat4x4());
+    result.resize(len, identity());
     for (int i = 0; i < len; ++i)
     {
       Transform world = this->pose.getGlobalTranform(i);

@@ -120,16 +120,19 @@ std::vector<Mesh> GLTFFile::getMeshes()
       it = primitive.attributes.find("JOINTS_0");
       if (it != primitive.attributes.end())
       {
-        const float *joints = getData<float>(this->tinyModel, it->second);
+        const unsigned short *joints = getData<unsigned short>(this->tinyModel, it->second);
         int count = tinyModel.accessors[it->second].count;
+
+        std::vector<int> skinjoints;
+        skinjoints = tinyModel.skins[0].joints;
 
         for (size_t i = 0; i < count; ++i)
         {
 
-          tmpmesh.vertices[i].joints[0] = joints[i * 4 + 0];
-          tmpmesh.vertices[i].joints[1] = joints[i * 4 + 1];
-          tmpmesh.vertices[i].joints[2] = joints[i * 4 + 2];
-          tmpmesh.vertices[i].joints[3] = joints[i * 4 + 3];
+          tmpmesh.vertices[i].joints[0] = skinjoints[joints[i * 4 + 0]];
+          tmpmesh.vertices[i].joints[1] = skinjoints[joints[i * 4 + 1]];
+          tmpmesh.vertices[i].joints[2] = skinjoints[joints[i * 4 + 2]];
+          tmpmesh.vertices[i].joints[3] = skinjoints[joints[i * 4 + 3]];
         };
       }
       else
@@ -247,10 +250,17 @@ Pose getRestPose(const tinygltf::Model &tinyModel)
     const tinygltf::Node &node = tinyModel.nodes[i];
 
     Transform finalTransform;
+
     if (node.matrix.size() != 0)
     {
+      const std::vector<double> &m = node.matrix;
       finalTransform = transformFromMat(
-          Mat4x4((const float *)node.matrix.data()).transpose());
+          Mat4x4(
+              m[0], m[1], m[2], m[3],
+              m[4], m[5], m[6], m[7],
+              m[8], m[9], m[10], m[11],
+              m[12], m[13], m[14], m[15])
+              .transpose());
     }
 
     if (node.translation.size() != 0)
@@ -272,13 +282,22 @@ Pose getRestPose(const tinygltf::Model &tinyModel)
     if (node.rotation.size() != 0)
     {
       finalTransform.orientation = Quat(
-          node.rotation[3],
           node.rotation[0],
           node.rotation[1],
-          node.rotation[2]);
+          node.rotation[2],
+          node.rotation[3]);
     }
 
     result.setLocalTransform(i, finalTransform);
+    /* Mat4x4 mat = finalTransform.get();
+     std::cout << "joint index: " << i << "\n";
+     std::cout << mat.rc[0][0] << " " << mat.rc[0][1] << " " << mat.rc[0][2] << " " << mat.rc[0][3] << "\n";
+
+     std::cout << mat.rc[1][0] << " " << mat.rc[1][1] << " " << mat.rc[1][2] << " " << mat.rc[1][3] << "\n";
+
+     std::cout << mat.rc[2][0] << " " << mat.rc[2][1] << " " << mat.rc[2][2] << " " << mat.rc[2][3] << "\n";
+
+     std::cout << mat.rc[3][0] << " " << mat.rc[3][1] << " " << mat.rc[3][2] << " " << mat.rc[3][3] << "\n"; */
 
     for (int j = 0; j < node.children.size(); j++)
     {
@@ -292,7 +311,7 @@ Pose getRestPose(const tinygltf::Model &tinyModel)
 std::vector<Mat4x4> getIverseMatrices(const tinygltf::Model &tinyModel)
 {
   std::vector<Mat4x4> inverseMats;
-  inverseMats.resize(tinyModel.nodes.size(), Mat4x4());
+  inverseMats.resize(tinyModel.nodes.size(), identity());
 
   const tinygltf::Skin &skin = tinyModel.skins[0];
 
@@ -302,18 +321,27 @@ std::vector<Mat4x4> getIverseMatrices(const tinygltf::Model &tinyModel)
     return inverseMats;
   }
   const float *data = getData<float>(tinyModel, skin.inverseBindMatrices);
-  size_t count = tinyModel.accessors[skin.inverseBindMatrices].count;
 
-  std::vector<Mat4x4> tmpMatrixData;
-  tmpMatrixData.resize(count, Mat4x4());
-  for (size_t j = 0; j < count; ++j)
+  for (int j = 0; j < skin.joints.size(); j++)
   {
-    std::memcpy(&tmpMatrixData[j].rc[0][0], data + j * 16 * sizeof(float), 16 * sizeof(float));
-  }
+    int index = skin.joints[j];
+    /*   inverseMats[index] = tmpMatrixData[i].transpose(); */
+    inverseMats[index] =
+        Mat4x4(
+            data[j * 16 + 0], data[j * 16 + 1], data[j * 16 + 2], data[j * 16 + 3],
+            data[j * 16 + 4], data[j * 16 + 5], data[j * 16 + 6], data[j * 16 + 7],
+            data[j * 16 + 8], data[j * 16 + 9], data[j * 16 + 10], data[j * 16 + 11],
+            data[j * 16 + 12], data[j * 16 + 13], data[j * 16 + 14], data[j * 16 + 15])
+            .transpose();
 
-  for (int i = 0; i < skin.joints.size(); ++i)
-  {
-    inverseMats[skin.joints[i]] = tmpMatrixData[i].transpose();
+    /* std::cout << "joint index: " << index << "\n";
+      std::cout << inverseMats[index].rc[0][0] << " " << inverseMats[index].rc[0][1] << " " << inverseMats[index].rc[0][2] << " " << inverseMats[index].rc[0][3] << "\n";
+
+      std::cout << inverseMats[index].rc[1][0] << " " << inverseMats[index].rc[1][1] << " " << inverseMats[index].rc[1][2] << " " << inverseMats[index].rc[1][3] << "\n";
+
+      std::cout << inverseMats[index].rc[2][0] << " " << inverseMats[index].rc[2][1] << " " << inverseMats[index].rc[2][2] << " " << inverseMats[index].rc[2][3] << "\n";
+
+      std::cout << inverseMats[index].rc[3][0] << " " << inverseMats[index].rc[3][1] << " " << inverseMats[index].rc[3][2] << " " << inverseMats[index].rc[3][3] << "\n"; */
   }
   return inverseMats;
 }
@@ -364,10 +392,10 @@ void editTrack(
     {
       Frame<4> frame = {
           .m_value = {
-              valueData[j * 4 + 3],
               valueData[j * 4 + 0],
               valueData[j * 4 + 1],
-              valueData[j * 4 + 2]},
+              valueData[j * 4 + 2],
+              valueData[j * 4 + 3]},
           .time = timeData[j],
 
       };

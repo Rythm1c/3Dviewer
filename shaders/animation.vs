@@ -11,12 +11,9 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 lightSpace;
 
-out vs_Out {
-    vec3 normal;
-    vec3 fragPos;
-    vec2 texCoords;
-    vec4 lightSpace;
-} vs_out;
+out vec3 normal;
+out vec3 fragPos;
+out vec2 texCoords;
 
 const int MAX_BONES = 300;
 const int MAX_BONE_INFLUENCE = 4;
@@ -32,10 +29,10 @@ void main() {
     mat4 final_mat = transform * skin;
     gl_Position = projection * view * final_mat * vec4(pos, 1.0);
 
-    vs_out.normal = mat3(transpose(inverse(final_mat))) * norm;
-    vs_out.texCoords = tc;
+    normal = mat3(transpose(inverse(final_mat))) * norm;
+    texCoords = tc;
 
-    vs_out.fragPos = vec3(final_mat * vec4(pos, 1.0));
-    vs_out.lightSpace = lightSpace * final_mat * vec4(pos, 1.0);
+    fragPos = vec3(final_mat * vec4(pos, 1.0));
+   // vs_out.lightSpace = lightSpace * final_mat * vec4(pos, 1.0);
 
 }

@@ -57,7 +57,7 @@ Transform Pose::getGlobalTranform(size_t index)
   Transform result = this->joints[index];
   int p = this->parents[index];
 
-  while (p >= 0)
+  while (p != -1)
   {
     result = combine(this->joints[p], result);
 
